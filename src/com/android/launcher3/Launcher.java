@@ -57,6 +57,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.os.StrictMode;
 import android.os.SystemClock;
 import android.os.Trace;
@@ -146,6 +147,8 @@ public class Launcher extends Activity
                    AccessibilityManager.AccessibilityStateChangeListener {
     public static final String TAG = "Launcher";
     static final boolean LOGD = false;
+        
+    static long lastClick;
 
     static final boolean DEBUG_WIDGETS = false;
     static final boolean DEBUG_STRICT_MODE = false;
@@ -2417,10 +2420,18 @@ public class Launcher extends Activity
             if (v instanceof PendingAppWidgetHostView) {
                 onClickPendingWidget((PendingAppWidgetHostView) v);
             }
+        } else {
+            if (System.currentTimeMillis()-lastClick<200) {
+            	Log.d(TAG, "doubleclick - sleep");
+            	PowerManager pm = (PowerManager) getApplicationContext().getSystemService(Context.POWER_SERVICE);
+                if(pm != null)
+                    pm.goToSleep(SystemClock.uptimeMillis());
+            }
         }
+        lastClick = System.currentTimeMillis();
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+	@SuppressLint("ClickableViewAccessibility")
     public boolean onTouch(View v, MotionEvent event) {
         return false;
     }
